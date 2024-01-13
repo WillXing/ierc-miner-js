@@ -38,18 +38,25 @@ This mining user configuration was not found!
   const provider = new ethers.providers.JsonRpcProvider(PROVIDER_RPC);
   const miner = new ethers.Wallet(privateKey, provider);
 
-  const [network, currentGasPrice, blockNumber, nonce, balance] = await Promise.all([
+  const [network, currentGasPrice, blockNumber, balance] = await Promise.all([
     provider.getNetwork(),
     provider.getGasPrice(),
     provider.getBlockNumber(),
     miner.getTransactionCount(),
     miner.getBalance(),
   ]);
+  let nonce = await miner.getTransactionCount()
   printer.trace(`network is ${network.name} (chainID: ${network.chainId})`);
   const targetGasFee = currentGasPrice.div(100).mul(GAS_PREMIUM);
 
   printer.trace(`Current gas price usage ${bnUtils.fromWei(targetGasFee.toString(), 9)} gwei`);
-  printer.trace(`nonce is ${nonce}`);
+  printer.trace(`nonce is ${nonce}, refresh nonce every 10 seconds`);
+  
+  setInterval(async () => {
+    nonce = await miner.getTransactionCount()
+    printer.trace(`new nonce is ${nonce}, refresh nonce every 10 seconds`);
+  }, 1000 * 10);
+
   printer.trace(`balance is ${bnUtils.fromWei(balance.toString(), 18).dp(4).toString()}`);
 
   const spinnies = new Spinnies();
