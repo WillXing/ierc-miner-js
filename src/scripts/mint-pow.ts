@@ -137,7 +137,8 @@ This mining user configuration was not found!
       printer.info(`mining hash: ${realTransaction.hash}`);
       await realTransaction.wait();
 
-      return printer.info("mining success");
+      printer.info("mining success");
+      process.exit(0);
     }
   }
 };
